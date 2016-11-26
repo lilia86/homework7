@@ -18,7 +18,7 @@ class DefaultController extends Controller
     {
 
          $array['method'] = $request->query->get('method');
-         return $this->json($path);
+         return $this->json($array);
 
     }
 
