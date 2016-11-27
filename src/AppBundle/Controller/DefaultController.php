@@ -28,8 +28,8 @@ class DefaultController extends Controller
      */
     public function postAction(Request $request)
     {
-        $array['id'] = $request->request->get('id');
-        $array['name'] = $request->request->get('name');
+        $array[0]['id'] = $request->request->get('id');
+        $array[0]['name'] = $request->request->get('name');
         $fp = fopen("file.json", "w");
         fwrite($fp, json_encode($array));
         fclose($fp);
@@ -37,58 +37,82 @@ class DefaultController extends Controller
     }
 
     /**
-     * @Route("/put", name="put")
+     * @Route("/put/{id}", name="put", requirements={"id": "\d+"})
      * @Method({"PUT"})
      */
-    public function putAction(Request $request)
+    public function putAction(Request $request, $id)
     {
         $content = $request->getContent();
-        parse_str($content, $result);
-        $fp = fopen("file.json", "w");
-        fwrite($fp, json_encode($result));
-        fclose($fp);
-        return $this->json($result);
-
-    }
-
-    /**
-     * @Route("/patch", name="patch")
-     * @Method({"PATCH"})
-     */
-    public function patchAction(Request $request)
-    {
-        $content = $request->getContent();
-        parse_str($content, $result);
+        parse_str($content, $array);
+        $result[0][$id] = $array;
         $filename = 'file.json';
         if (file_exists($filename)){
             chmod($filename, 0777);
             $old_content = file_get_contents($filename);
             $decode = json_decode($old_content, true);
-            $result = array_merge($decode, $result);
+            $result = array_replace_recursive($decode, $result);
         }
         $fp = fopen("file.json", "w");
         fwrite($fp, json_encode($result));
         fclose($fp);
         return $this->json($result);
+
     }
 
     /**
-     * @Route("/delete", name="delete")
-     * @Method({"DELETE"})
+     * @Route("/patch/{id}", name="patch", requirements={"id": "\d+"})
+     * @Method({"PATCH"})
      */
-    public function deleteAction()
+    public function patchAction(Request $request, $id)
     {
+        $content = $request->getContent();
+        parse_str($content, $array);
         $filename = 'file.json';
         if (file_exists($filename)){
-            unlink($filename);
-            return new Response(
-                '<html><body>The file was deleted</body></html>'
-            );
+            chmod($filename, 0777);
+            $old_content = file_get_contents($filename);
+            $decode = json_decode($old_content, true);
+            if(isset($decode[0][$id])){
+                $decode[0][$id] = array_merge($decode[0][$id], $array);
+            }else{
+                $result[0][$id] = $array;
+                $decode = array_merge($decode, $result);
+            }
 
-        }else{
-            return new Response(
-                '<html><body>The file was deleted</body></html>'
-            );
+        }else {
+            $decode[0][$id] = $array;
+        }
+        $fp = fopen("file.json", "w");
+        fwrite($fp, json_encode($decode));
+        fclose($fp);
+        return $this->json($decode);
+    }
+
+    /**
+     * @Route("/delete/{id}", name="delete", requirements={"page": "\d+"})
+     * @Method({"DELETE"})
+     */
+    public function deleteAction(Request $request, $id)
+    {
+        $content = $request->getContent();
+        parse_str($content, $array);
+        $filename = 'file.json';
+        if (file_exists($filename)) {
+            chmod($filename, 0777);
+            $old_content = file_get_contents($filename);
+            $decode = json_decode($old_content, true);
+            for ($i = 0; $i < count($decode); $i++) {
+                if (array_key_exists($id, $decode[$i])) {
+                    unset($decode[$i][$id]);
+                }
+
+            }
+
+            $fp = fopen("file.json", "w");
+            fwrite($fp, json_encode($decode));
+            fclose($fp);
+            return $this->json($decode);
+
         }
 
     }
