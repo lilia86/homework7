@@ -5,21 +5,21 @@ Installation
 
 Before installation be sure that you have Symfony3 installed and configured.
 
-1.Clone the repository:
+1. Clone the repository:
  
- $ git clone https://github.com/lilia86/homework7.git -b dev
+   $ git clone https://github.com/lilia86/homework7.git -b dev
 
 2. Go to the project root
 
-cd homework7
+   cd homework7
 
 3. Check if your server meets the requirements by running:
 
-$ php bin/symfony_requirements
+   $ php bin/symfony_requirements
 
 4. And run the reload to install dependensies, config parameters and clearing cach for prod enviroment
 
-$ php bin/reload.php
+   $ php bin/reload.php
 
 Testing
 
