@@ -33,11 +33,14 @@ For testing enter requests:
    
 3. Method PUT. URL - http://your_domain/app.php/put/new_user_id
    Action save in file new user or rewrite user with new_user_id from URL and any information that 
-   was seted in request message body (for example name=Alice&email=some_email). Returns file content in json format
+   was seted in request message body in raw format(for example name=Alice&email=some_email). Returns file content in json format
    
 4. Method PATCH. URL - http://your_domain/app.php/put/new_user_id
    Action save in file new user or adding some information to user with new_user_id from URL that 
    was seted in request message body (in example above add phone=1233 for user Alice).Returns file content in json format 
       
 5. Method DELETE. URL - http://your_domain/app.php/put/new_user_id
-   Action delete from file user with new_user_id from URL if it exists. Returns file content in json format     
+   Action delete from file user with new_user_id from URL if it exists. Returns file content in json format  
+      
+6. You can test GET and POST mehtods running:
+      php bin/test.php
