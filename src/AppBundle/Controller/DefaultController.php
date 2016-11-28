@@ -7,6 +7,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use \AppBundle\Model\ModelController;
 
 class DefaultController extends Controller
 {
@@ -43,18 +44,8 @@ class DefaultController extends Controller
     public function putAction(Request $request, $id)
     {
         $content = $request->getContent();
-        parse_str($content, $array);
-        $result[0][$id] = $array;
-        $filename = 'file.json';
-        if (file_exists($filename)){
-            chmod($filename, 0777);
-            $old_content = file_get_contents($filename);
-            $decode = json_decode($old_content, true);
-            $result = array_replace_recursive($decode, $result);
-        }
-        $fp = fopen("file.json", "w");
-        fwrite($fp, json_encode($result));
-        fclose($fp);
+        $model = new ModelController();
+        $result = $model->put($content, $id);
         return $this->json($result);
 
     }
@@ -66,25 +57,8 @@ class DefaultController extends Controller
     public function patchAction(Request $request, $id)
     {
         $content = $request->getContent();
-        parse_str($content, $array);
-        $filename = 'file.json';
-        if (file_exists($filename)){
-            chmod($filename, 0777);
-            $old_content = file_get_contents($filename);
-            $decode = json_decode($old_content, true);
-            if(isset($decode[0][$id])){
-                $decode[0][$id] = array_merge($decode[0][$id], $array);
-            }else{
-                $result[0][$id] = $array;
-                $decode = array_merge($decode, $result);
-            }
-
-        }else {
-            $decode[0][$id] = $array;
-        }
-        $fp = fopen("file.json", "w");
-        fwrite($fp, json_encode($decode));
-        fclose($fp);
+        $model = new ModelController();
+        $decode = $model->patch($content, $id);
         return $this->json($decode);
     }
 
@@ -92,28 +66,11 @@ class DefaultController extends Controller
      * @Route("/delete/{id}", name="delete", requirements={"page": "\d+"})
      * @Method({"DELETE"})
      */
-    public function deleteAction(Request $request, $id)
+    public function deleteAction($id)
     {
-        $content = $request->getContent();
-        parse_str($content, $array);
-        $filename = 'file.json';
-        if (file_exists($filename)) {
-            chmod($filename, 0777);
-            $old_content = file_get_contents($filename);
-            $decode = json_decode($old_content, true);
-            for ($i = 0; $i < count($decode); $i++) {
-                if (array_key_exists($id, $decode[$i])) {
-                    unset($decode[$i][$id]);
-                }
-
-            }
-
-            $fp = fopen("file.json", "w");
-            fwrite($fp, json_encode($decode));
-            fclose($fp);
-            return $this->json($decode);
-
-        }
+        $model = new ModelController();
+        $decode = $model->delete($id);
+        return $this->json($decode);
 
     }
 }

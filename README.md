@@ -42,5 +42,5 @@ For testing enter requests:
 5. Method DELETE. URL - http://your_domain/app.php/put/new_user_id
    Action delete from file user with new_user_id from URL if it exists. Returns file content in json format  
       
-6. You can test GET and POST mehtods running:
+6. You can test GET and POST mehtods running(set your domain in the script):
       php bin/test.php
