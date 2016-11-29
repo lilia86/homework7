@@ -15,7 +15,4 @@ show_run("composer install", "composer install --no-dev --optimize-autoloader");
 show_run("clear cash", "php bin/console cache:clear --env=prod --no-debug");
 
 
-
-
-
 exit(0);
