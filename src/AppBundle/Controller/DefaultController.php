@@ -7,9 +7,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use \AppBundle\Model\PostModel;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
-
+use AppBundle\Model\PostModel;
 
 class DefaultController extends Controller
 {
@@ -19,11 +17,9 @@ class DefaultController extends Controller
      */
     public function getAction(Request $request)
     {
+        $array['method'] = $request->query->get('method');
 
-         $array['method'] = $request->query->get('method');
-
-         return $this->json($array);
-
+        return $this->json($array);
     }
 
     /**
@@ -32,13 +28,13 @@ class DefaultController extends Controller
      */
     public function getIdAction($id)
     {
-
         $model = new PostModel();
-        $name = $model->getName($id);
+        $file_name = $this->container->getParameter('storage');
+        $name = $model->getName($id, $file_name);
+
         return new Response(
             '<html><body>Hello '.$name.'</body></html>'
         );
-
     }
 
     /**
@@ -50,10 +46,9 @@ class DefaultController extends Controller
         $array[0]['name'] = $request->request->get('name');
         $array[0]['email'] = $request->request->get('email');
         $file_name = $this->container->getParameter('storage');
-        $fp = fopen($file_name, "w");
-        fwrite($fp, json_encode($array));
-        fclose($fp);
-        return $this->json($file_name);
+        $model = new PostModel();
+        $result = $model->post($array, $file_name);
+        return $this->json($result);
     }
 
     /**
@@ -66,8 +61,8 @@ class DefaultController extends Controller
         $file_name = $this->container->getParameter('storage');
         $model = new PostModel();
         $result = $model->put($content, $id, $file_name);
-        return $this->json($result);
 
+        return $this->json($result);
     }
 
     /**
@@ -80,6 +75,7 @@ class DefaultController extends Controller
         $file_name = $this->container->getParameter('storage');
         $model = new PostModel();
         $decode = $model->patch($content, $id, $file_name);
+
         return $this->json($decode);
     }
 
@@ -92,7 +88,7 @@ class DefaultController extends Controller
         $file_name = $this->container->getParameter('storage');
         $model = new PostModel();
         $decode = $model->delete($id, $file_name);
-        return $this->json($decode);
 
+        return $this->json($decode);
     }
 }

@@ -10,9 +10,8 @@ function show_run($text, $command, $canFail = false)
         exit(1);
     }
 }
-show_run("export env", "export SYMFONY_ENV=prod");
-show_run("composer install", "composer install --no-dev --optimize-autoloader");
-show_run("clear cash", "php bin/console cache:clear --env=prod --no-debug");
-
+show_run('export env', 'export SYMFONY_ENV=prod');
+show_run('composer install', 'composer install --no-dev --optimize-autoloader');
+show_run('clear cash', 'php bin/console cache:clear --env=prod --no-debug');
 
 exit(0);
