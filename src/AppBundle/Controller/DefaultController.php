@@ -7,89 +7,88 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use AppBundle\Model\PostModel;
 
 class DefaultController extends Controller
 {
     /**
-     * @Route("/get", name="get")
+     * @Route("/posts", name="get")
      * @Method({"GET"})
      */
     public function getAction(Request $request)
     {
+        $array['method'] = $request->query->get('method');
 
-         $array['method'] = $request->query->get('method');
-         return $this->json($path);
-
-    }
-
-    /**
-     * @Route("/post", name="post")
-     * @Method({"POST"})
-     */
-    public function postAction(Request $request)
-    {
-        $array['id'] = $request->request->get('id');
-        $array['name'] = $request->request->get('name');
-        $fp = fopen("file.json", "w");
-        fwrite($fp, json_encode($array));
-        fclose($fp);
         return $this->json($array);
     }
 
     /**
-     * @Route("/put", name="put")
+     * @Route("/posts/{id}", name="get_id", requirements={"id": "\d+"})
+     * @Method({"GET"})
+     */
+    public function getIdAction($id)
+    {
+        $model = new PostModel();
+        $file_name = $this->container->getParameter('storage');
+        $name = $model->getName($id, $file_name);
+
+        return new Response(
+            '<html><body>Hello '.$name.'</body></html>'
+        );
+    }
+
+    /**
+     * @Route("/posts", name="post")
+     * @Method({"POST"})
+     */
+    public function postAction(Request $request)
+    {
+        $array[0]['name'] = $request->request->get('name');
+        $array[0]['email'] = $request->request->get('email');
+        $file_name = $this->container->getParameter('storage');
+        $model = new PostModel();
+        $result = $model->post($array, $file_name);
+        return $this->json($result);
+    }
+
+    /**
+     * @Route("/posts/{id}", name="put", requirements={"id": "\d+"})
      * @Method({"PUT"})
      */
-    public function putAction(Request $request)
+    public function putAction(Request $request, $id)
     {
         $content = $request->getContent();
-        parse_str($content, $result);
-        $fp = fopen("file.json", "w");
-        fwrite($fp, json_encode($result));
-        fclose($fp);
-        return $this->json($result);
+        $file_name = $this->container->getParameter('storage');
+        $model = new PostModel();
+        $result = $model->put($content, $id, $file_name);
 
+        return $this->json($result);
     }
 
     /**
-     * @Route("/patch", name="patch")
+     * @Route("/posts/{id}", name="patch", requirements={"id": "\d+"})
      * @Method({"PATCH"})
      */
-    public function patchAction(Request $request)
+    public function patchAction(Request $request, $id)
     {
         $content = $request->getContent();
-        parse_str($content, $result);
-        $filename = 'file.json';
-        if (file_exists($filename)){
-            chmod($filename, 0777);
-            $old_content = file_get_contents($filename);
-            $decode = json_decode($old_content, true);
-            $result = array_merge($decode, $result);
-        }
-        $fp = fopen("file.json", "w");
-        fwrite($fp, json_encode($result));
-        fclose($fp);
-        return $this->json($result);
+        $file_name = $this->container->getParameter('storage');
+        $model = new PostModel();
+        $decode = $model->patch($content, $id, $file_name);
+
+        return $this->json($decode);
     }
 
     /**
-     * @Route("/delete", name="delete")
+     * @Route("/posts/{id}", name="delete", requirements={"page": "\d+"})
      * @Method({"DELETE"})
      */
-    public function deleteAction()
+    public function deleteAction($id)
     {
-        $filename = 'file.json';
-        if (file_exists($filename)){
-            unlink($filename);
-            return new Response(
-                '<html><body>The file was deleted</body></html>'
-            );
+        $file_name = $this->container->getParameter('storage');
+        $model = new PostModel();
+        $decode = $model->delete($id, $file_name);
 
-        }else{
-            return new Response(
-                '<html><body>The file was deleted</body></html>'
-            );
-        }
-
+        return $this->json($decode);
     }
 }
